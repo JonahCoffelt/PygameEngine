@@ -1,6 +1,6 @@
 # Configs : {'win_size': (int width, int height), 'tile_size': int pixels}
 
-project_path = 'Dev 1.0 - Basic UI'
+project_path = 'Dev 1.1 - Abstraction'
 
 def configs(current_config=None):
     if current_config:

@@ -1,5 +1,5 @@
 import pygame
-from button_handler import *
+from UI_element_handler import *
 from data_handler import *
 from text_handler import *
 from displays_handler import Display
@@ -10,22 +10,23 @@ class UI():
         self.config = configs()
 
         self.UI_hold_elements = {}
-        self.UI_button_elements = {}
-        self.UI_elements = {}
+        self.current_held_element = None
+        
         self.mouse_pressed = False
-        self.current_seletion = None
 
+        # Init handelers
         self.font = FontRenderer()
-        self.disp = Display(self.UI_button_elements, self.UI_elements)
+        self.disp = Display()
 
+        # Initial settings for display (This is likely to be abstracted)
         self.left_margin = .25
         self.right_margin = .20
         self.bottom_margin = .35
         self.top_margin = .065
 
+        # Init setup
         self.define_UI_boxes((self.config["win_height"] * self.config["aspect_ratio"], self.config["win_height"]))
         self.disp.configure_displays()
-        self.current_held_element = None
     
     def define_UI_boxes(self, win_size):
         self.win_size = win_size
@@ -44,19 +45,20 @@ class UI():
 
     def draw(self, win):
         self.disp.draw_displays(win)
-        draw_buttons(win, self.UI_elements, self.config, self.UI_button_elements, self.current_seletion, 0, self.font)
+        draw_buttons(win, self.disp.UI_elements, self.font)
         pygame.display.flip()
         
 
     def UI_input(self):
         self.mouseX, self.mouseY = pygame.mouse.get_pos()
 
-        for element in self.UI_elements:
-            bounding_box = self.UI_elements[element].bounding_box
-            if bounding_box[0] < self.mouseX < bounding_box[0] + bounding_box[2] and bounding_box[1] < self.mouseY < bounding_box[1] + bounding_box[3]:
-                self.UI_elements[element].set_hover()
-            else:
-                self.UI_elements[element].set_default()
+        for element in self.disp.UI_elements:
+            bounding_box = self.disp.UI_elements[element].bounding_box
+            if not self.disp.UI_elements[element].state == self.config['accent_color']:
+                if bounding_box[0] < self.mouseX < bounding_box[0] + bounding_box[2] and bounding_box[1] < self.mouseY < bounding_box[1] + bounding_box[3]:
+                    self.disp.UI_elements[element].hover()
+                else:
+                    self.disp.UI_elements[element].set_default()
 
         if pygame.mouse.get_pressed()[0]:
             if self.mouse_pressed:
@@ -77,10 +79,12 @@ class UI():
             if self.mouse_pressed:
                 # Mouse Released
                 self.mouse_pressed = False
-                for element in self.UI_elements:
-                    bounding_box = self.UI_elements[element].bounding_box
+                for element in self.disp.UI_elements:
+                    bounding_box = self.disp.UI_elements[element].bounding_box
                     if bounding_box[0] < self.mouseX < bounding_box[0] + bounding_box[2] and bounding_box[1] < self.mouseY < bounding_box[1] + bounding_box[3]:
-                        self.UI_elements[element].set_selected()
+                        for element_other in self.disp.UI_elements:
+                            self.disp.UI_elements[element_other].set_default()
+                        self.disp.UI_elements[element].click()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:

@@ -10,7 +10,7 @@ images = {}
 def split_sheet(sheet_name, path_name, tile_size):
 
     # Get file
-    filename = "Dev 1.0\\Assets\\SpriteSheets\\{}.png".format(path_name)
+    filename = "Dev 1.1 - Abstraction\\Assets\\SpriteSheets\\{}.png".format(path_name)
     filepath = f"{filename}"
     currentSheet = pygame.image.load(f"{filename}")
 

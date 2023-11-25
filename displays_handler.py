@@ -1,17 +1,20 @@
 import pygame
 import objects_handler
 from data_handler import *
-from button_handler import *
+from UI_element_handler import *
 
 class Display():
-    def __init__(self, buttons, UI_elements):
+    def __init__(self):
+        # Load configurations from file
         self.config = configs()
-        self.left_view = self.objects
+
+        # Basic display functions
+        self.left_view = self.objects_display
         #self.bottom_view = self.files
         #self.right_view = self.add
-        self.padding = 10
-        self.buttons = buttons
-        self.UI_elements = UI_elements
+
+        # 
+        self.UI_elements = {}
     
     def define_viewframes(self, left, right, bottom, top):
         self.left_viewframe = left
@@ -37,15 +40,16 @@ class Display():
         #self.bottom_view(win)
         #self.right_view(win)
 
-    def objects(self, viewframe):
+    def objects_display(self, viewframe):
+        # Basic Display Configs
         height = 25
         std_height = height
         padding = 0
-        if len(objects_handler.objects) * (height + self.padding) > viewframe[3]:
-            height = (viewframe[3] / len(objects_handler.objects)) - self.padding
 
-        self.buttons['+'] = (viewframe[0] + 15, viewframe[1] + 15, std_height, std_height)
+        # Shrinks the button height if there are too many to display
+        if len(objects_handler.objects) * (height + padding) > viewframe[3]:
+            height = (viewframe[3] / len(objects_handler.objects)) - padding
         
+        # Reads all the game objects and creates a UI element as a button for them
         for i, obj_key in enumerate(objects_handler.objects):
-            self.buttons[obj_key] = (viewframe[0] + 1, viewframe[1] + (padding + height) * (i) + std_height * 2, viewframe[2] - 2, height)
-            self.UI_elements[obj_key] = Button((viewframe[0] + 1, viewframe[1] + (padding + height) * (i) + std_height * 2, viewframe[2] - 2, height))
+            self.UI_elements[obj_key] = Button(obj_key, (viewframe[0] + 1, viewframe[1] + (padding + height) * (i) + std_height * 2, viewframe[2] - 2, height))
