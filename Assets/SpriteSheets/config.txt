@@ -1,0 +1,1 @@
+{'win_height': 600, 'aspect_ratio': 16/9, 'tile_size': 8, 'primary_color': (31, 31, 31), 'secondary_color': (24, 24, 24), 'accent_color': (55, 55, 62), 'hover_color': (42, 45, 46)}
