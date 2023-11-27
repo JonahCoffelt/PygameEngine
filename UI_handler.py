@@ -2,14 +2,15 @@ import pygame
 from UI_element_handler import *
 from data_handler import *
 from text_handler import *
+from dragable_handler import *
 from displays_handler import Display
 from objects_handler import objects as objs
 
 class UI():
     def __init__(self):
         self.config = configs()
+        self.win_size = (self.config["win_height"] * self.config["aspect_ratio"], self.config["win_height"])
 
-        self.UI_hold_elements = {}
         self.current_held_element = None
         
         self.mouse_pressed = False
@@ -17,41 +18,34 @@ class UI():
         # Init handelers
         self.font = FontRenderer()
         self.disp = Display()
-
-        # Initial settings for display (This is likely to be abstracted)
-        self.left_margin = .25
-        self.right_margin = .20
-        self.bottom_margin = .35
-        self.top_margin = .065
+        self.drag = Dragable(self.win_size)
 
         # Init setup
-        self.define_UI_boxes((self.config["win_height"] * self.config["aspect_ratio"], self.config["win_height"]))
+        self.drag.define_UI_boxes(0, 0)
+        self.disp.define_viewframes(self.drag.left_box, self.drag.right_box, self.drag.bottom_box, self.drag.top_box)
         self.disp.configure_displays()
-    
-    def define_UI_boxes(self, win_size):
-        self.win_size = win_size
-        self.right_box = (win_size[0] - win_size[0] * self.right_margin, win_size[1] * self.top_margin, win_size[0] * self.right_margin, win_size[1] - win_size[1] * self.top_margin)
-        self.left_box = (0, win_size[1] * self.top_margin, win_size[0] * self.left_margin, win_size[1] - win_size[1] * self.bottom_margin - win_size[1] * self.top_margin)
-        self.bottom_box = (0, win_size[1] - win_size[1] * self.bottom_margin, win_size[0] - win_size[0] * self.right_margin, win_size[1] * self.bottom_margin)
-        self.top_box = (0, 0, win_size[0], win_size[1] * self.top_margin)
 
-        hold_box_margin = 16
-        self.UI_hold_elements[self.drag_right_bar] = (self.right_box[0] - hold_box_margin/2, self.right_box[1], hold_box_margin, self.right_box[3])
-        self.UI_hold_elements[self.drag_left_bar] = (self.left_box[2] - hold_box_margin/2, self.left_box[1], hold_box_margin, self.left_box[3])
-        self.UI_hold_elements[self.drag_bottom_bar] = (0, self.bottom_box[1] - hold_box_margin/2, self.bottom_box[2], hold_box_margin)
+        print(help(FontRenderer.render_text))
 
-        self.disp.define_viewframes(self.left_box, self.right_box, self.bottom_box, self.top_box)
-        self.disp.configure_displays()
 
     def draw(self, win):
+        '''
+        Draws the viewframes from the Display class
+        Draws the buttons from the UI_element_handler module
+        '''
         self.disp.draw_displays(win)
         draw_buttons(win, self.disp.UI_elements, self.font)
         pygame.display.flip()
-        
 
     def UI_input(self):
+        '''
+        Handles mouse inputs
+        Draging functions, such as the resizing of viewframes, are sent to the Dragable class
+        Button functions are sent to the Display class
+        '''
         self.mouseX, self.mouseY = pygame.mouse.get_pos()
 
+        # Check for hover
         for element in self.disp.UI_elements:
             bounding_box = self.disp.UI_elements[element].bounding_box
             if not self.disp.UI_elements[element].state == self.config['accent_color']:
@@ -63,18 +57,15 @@ class UI():
         if pygame.mouse.get_pressed()[0]:
             if self.mouse_pressed:
                 # Mouse Held
-                if self.current_held_element:
-                    self.current_held_element()
+                self.drag.mouse_held(self.mouseX, self.mouseY)
+                self.disp.define_viewframes(self.drag.left_box, self.drag.right_box, self.drag.bottom_box, self.drag.top_box)
+                self.disp.configure_displays()
             else:
-                # Mouse Mouse Down
+                # Mouse Down
                 self.mouse_pressed = True
-                self.current_held_element = None
-                for element in self.UI_hold_elements:
-                    bounding_box = self.UI_hold_elements[element]
-                    if bounding_box[0] < self.mouseX < bounding_box[0] + bounding_box[2] and bounding_box[1] < self.mouseY < bounding_box[1] + bounding_box[3]:
-                        self.current_held_element = element
-                        self.startX, self.startY = self.mouseX, self.mouseY
-                        self.org_pos = self.right_margin
+                self.drag.mouse_down(self.mouseX, self.mouseY)
+                self.disp.define_viewframes(self.drag.left_box, self.drag.right_box, self.drag.bottom_box, self.drag.top_box)
+                self.disp.configure_displays()
         else:
             if self.mouse_pressed:
                 # Mouse Released
@@ -90,22 +81,9 @@ class UI():
             if event.type == pygame.QUIT:
                 pygame.quit()
             elif event.type == pygame.VIDEORESIZE:
-                self.define_UI_boxes((event.w, event.h))
+                self.win_size = (event.w, event.h)
+                self.drag.define_UI_boxes(self.mouseX, self.mouseY)
+                self.disp.define_viewframes(self.drag.left_box, self.drag.right_box, self.drag.bottom_box, self.drag.top_box)
+                self.disp.configure_displays()
         
         keys = pygame.key.get_pressed()
-    
-    def drag_right_bar(self):
-        new_pos = 1 - self.mouseX / self.win_size[0]
-        if new_pos > .02:
-            self.right_margin = new_pos
-            self.define_UI_boxes(self.win_size)
-    def drag_left_bar(self):
-        new_pos = self.mouseX / self.win_size[0]
-        if new_pos > .02:
-            self.left_margin = new_pos
-            self.define_UI_boxes(self.win_size)
-    def drag_bottom_bar(self):
-        new_pos = 1 - self.mouseY / self.win_size[1]
-        if new_pos > .02:
-            self.bottom_margin = new_pos
-            self.define_UI_boxes(self.win_size)

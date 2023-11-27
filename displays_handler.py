@@ -9,7 +9,7 @@ class Display():
         self.config = configs()
 
         # Basic display functions
-        self.left_view = self.objects_display
+        self.left_view = self.game_objects_display
         #self.bottom_view = self.files
         #self.right_view = self.add
 
@@ -40,7 +40,7 @@ class Display():
         #self.bottom_view(win)
         #self.right_view(win)
 
-    def objects_display(self, viewframe):
+    def game_objects_display(self, viewframe):
         # Basic Display Configs
         height = 25
         std_height = height

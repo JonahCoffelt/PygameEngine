@@ -2,6 +2,7 @@
 
 project_path = 'Dev 1.1 - Abstraction'
 
+
 def configs(current_config=None):
     if current_config:
         with open(f'{project_path}\\Assets\\SpriteSheets\\config.txt', 'w') as config_file:
