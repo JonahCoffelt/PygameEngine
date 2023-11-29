@@ -17,8 +17,9 @@ class Engine():
         pygame.display.set_caption("2D Engine")
         self.clock = pygame.time.Clock()     
         
-        for i in range(10):
-            objects_handler.objects[f'GameObject {i}'] = objects_handler.GameObject()
+        objects_handler.set_game_object(f'GameObject 1', objects_handler.GameObject(10.0, 34.0, w=4.0))
+        objects_handler.set_game_object(f'GameObject 2', objects_handler.GameObject(5.0, 2.0, w=44.0))
+        objects_handler.set_game_object(f'Camera', objects_handler.Camera())
 
         self.UI = UI()
 

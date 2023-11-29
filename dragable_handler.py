@@ -3,8 +3,8 @@
 class Dragable():
     def __init__(self, win_size):
         # Basic viewframe bounds
-        self.left_margin = .25
-        self.right_margin = .20
+        self.left_margin = .20
+        self.right_margin = .30
         self.bottom_margin = .35
         self.top_margin = .065
 
