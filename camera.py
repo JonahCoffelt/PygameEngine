@@ -5,6 +5,7 @@ class EngineCamera():
 
         self.speed = 1
         self.view = 1
+        self.zoom = 10
     
     def move(self, dt, delta_x, delta_y):
         self.x += delta_x * self.speed * dt

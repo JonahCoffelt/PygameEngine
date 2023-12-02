@@ -63,23 +63,38 @@ class Display():
         # Shrinks the button height if there are too many to display
         if len(objects) * (height + padding) > viewframe[3]:
             height = (viewframe[3] / len(objects)) - padding
+
+        # Add New Button
+        self.UI_elements[f'+-{side}'] = Button(f'+', (viewframe[0] + 15, viewframe[1] + std_height/2, height, height), function='Window_Add', icon=True)
         
         # Reads all the game objects and creates a UI element as a button for them
         for i, obj_key in enumerate(objects):
             self.UI_elements[f'{obj_key}-{side}'] = Button(f'{obj_key}', (viewframe[0] + 1, viewframe[1] + (padding + height) * (i) + std_height * 2, viewframe[2] - 2, height))
 
     def inspector_display(self, viewframe, side):
+        self.clear_elements(side)
         title = "Inspector"
         if self.selected_button: title = self.selected_button[0:-2]
         self.UI_elements[f'inspector_title-{side}'] = Title(title, (viewframe[0] + 10, viewframe[1] + 10, viewframe[2] - 20, 50))
         if self.selected_button:
             objects = objects_handler.get_game_objects()
-            self.clear_elements(side)
             attributes = objects[title].attributes
             for i, attribute in enumerate(attributes):
                 self.attribute_functions[attribute](side, objects[title], viewframe[0] + 10, viewframe[1] + 70 + i  * 40, viewframe[2] - 20, 30)
 
+    def add_display(self, viewframe, side):
+        self.clear_elements(side)
+        self.UI_elements[f'inspector_title-{side}'] = Title("Add New", (viewframe[0] + 10, viewframe[1] + 10, viewframe[2] - 20, 50))
+        self.UI_elements[f'add_game_obj_x-{side}'] = Button("Game Objects", (viewframe[0] + 10, viewframe[1] + 80, viewframe[2] - 20, 40), function='Add_Game_Object')
+
     def clear_elements(self, side):
+        poppers = []
+        for element in self.UI_elements:
+            if element[-1] == side:
+                poppers.append(element)
+        for popper in poppers:
+            self.UI_elements.pop(popper)
+        '''
         if f'position_x-{side}' in self.UI_elements:
             self.UI_elements.pop(f'position_x-{side}')
         if f'position_y-{side}' in self.UI_elements:
@@ -100,6 +115,7 @@ class Display():
             self.UI_elements.pop(f'color_b-{side}')
         if f'Components-{side}' in self.UI_elements:
             self.UI_elements.pop(f'Components-{side}')
+        '''
 
     def position(self, side, object, start_x, start_y, width, height):
         self.UI_elements[f'position_x-{side}'] = TextInput("x", float, object.x, bounding_box=(start_x + 2, start_y, width/3 - 4, height))

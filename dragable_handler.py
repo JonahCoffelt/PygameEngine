@@ -1,5 +1,3 @@
-
-
 class Dragable():
     def __init__(self, win_size):
         # Basic viewframe bounds
